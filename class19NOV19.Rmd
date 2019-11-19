@@ -1,0 +1,68 @@
+---
+title: "Class 19NOV19"
+author: "Margaret Butler"
+date: "11/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(skimr)
+library(tidymodels)
+library(tidyverse)
+library(fs)
+```
+
+```{r}
+
+download.file("https://github.com/TheUpshot/2018-live-poll-results/archive/master.zip", destfile = "master.zip")
+
+```
+
+```{r}
+
+unzip("master.zip")
+
+my_list <- fs::dir_ls("2018-live-poll-results-master/data/")
+  
+raw <- map_dfr(my_list, read_csv, col_types = cols(
+  .default = col_character(),
+  turnout_scale = col_double(),
+  turnout_score = col_double(),
+  w_LV = col_double(),
+  w_RV = col_double(),
+  final_weight = col_double(),
+  timestamp = col_datetime(format = "")
+))
+
+```
+
+```{r}
+
+skim(raw)
+
+```
+
+```{r}
+
+x <- raw %>% 
+  mutate(dvote = ifelse(response == "Dem", 1, 0)) %>% 
+  mutate(female = ifelse(gender == "Female", 1, 0)) %>% 
+  select(dvote, female, response, gender)
+
+```
+
+```{r}
+
+x %>% 
+  ggplot(aes(dvote, female)) +
+  geom_jitter(alpha = 0.2) 
+
+## lm(data = x, dvote ~ female)
+
+```
+
+```{r}
+fs::file_delete(c("master.zip", "2018-live-poll-results-master/data"))
+```
