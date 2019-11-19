@@ -59,10 +59,26 @@ x %>%
   ggplot(aes(dvote, female)) +
   geom_jitter(alpha = 0.2) 
 
-## lm(data = x, dvote ~ female)
+
 
 ```
+
+```{yr}
+fs::file_delete(c("master.zip", "2018-live-poll-results-master/data"))
+
+```
+
 
 ```{r}
-fs::file_delete(c("master.zip", "2018-live-poll-results-master/data"))
+glm_obj <- glm(dvote ~ female, data = x, family = "binomial")
+
+my_data <- tibble(female = c(0,0,1))
+
+predict(glm_obj, newdata = my_data)
+
+predict.glm(glm_obj, newdata = my_data, type = "response")
+
+x %>%
+  mutate(prediction = predict(glm_obj, type = "response"))
 ```
+
